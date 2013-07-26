@@ -30,6 +30,7 @@ def new_item():
         return template('new_task.tpl')
 
 @route('/edit/:no', method='GET')
+@validate(no=int)
 def edit_item(no):
 
     if request.GET.get('save','').strip():
