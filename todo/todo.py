@@ -70,6 +70,11 @@ def show_item(item):
         else:
             return 'Task: %s' %result[0]
 
+@route('/help')
+def help():
+
+    static_file('help.html', root='.')
+
 debug(True)
 run(reloader=True)
 
