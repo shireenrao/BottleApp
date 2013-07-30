@@ -1,5 +1,5 @@
 import sqlite3
-from bottle import route, run, debug, template, request
+from bottle import route, run, debug, template, request, validate
 
 @route('/')
 @route('/todo')
@@ -56,6 +56,19 @@ def edit_item(no):
 
         return template('edit_task', old=cur_data, no=no)
 
+@route('/item:item#[0-9]+#')
+def show_item(item):
+
+        conn = sqlite3.connect('todo.db')
+        c = conn.cursor()
+        c.execute("SELECT task FROM todo WHERE id LIKE ?", (item))
+        result = c.fetchall()
+        c.close()
+
+        if not result:
+            return 'This item number does not exist!'
+        else:
+            return 'Task: %s' %result[0]
 
 debug(True)
 run(reloader=True)
