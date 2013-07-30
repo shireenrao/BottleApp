@@ -89,6 +89,14 @@ def show_json(json):
     else:
         return {'Task': result[0]}
 
+@error(403)
+def mistake403(code):
+    return 'There is a mistake in your url!'
+
+@error(404)
+def mistake404(code):
+    return 'Sorry, this page does not exist!'
+
 debug(True)
 run(reloader=True)
 
