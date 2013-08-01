@@ -1,20 +1,41 @@
 import sqlite3
-from bottle import route, run, debug, template, request, validate
+from bottle import route, run, debug
+from bottle import redirect, template, request, validate, static_file, error
 
 @route('/')
 @route('/todo')
 def todo_list():
+    """
+    Show the main page which is the current TODO list
+    """
+    type='1'
     conn = sqlite3.connect('todo.db')
     c = conn.cursor()
     c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
     result = c.fetchall()
     c.close()
-    output = template('make_table', rows=result)
+    output = template('make_table', rows=result, type=type)
+    return output
+
+@route('/done')
+def todo_done():
+    """
+    Show the done TODO list
+    """
+    type='0'
+    conn = sqlite3.connect('todo.db')
+    c = conn.cursor()
+    c.execute("SELECT id, task FROM todo WHERE status LIKE '0'")
+    result = c.fetchall()
+    c.close()
+    output = template('make_table', rows=result, type=type)
     return output
 
 @route('/new', method='GET')
 def new_item():
-
+    """
+    Add a new TODO item
+    """
     if request.GET.get('save','').strip():
         new = request.GET.get('task', '').strip()
         conn = sqlite3.connect('todo.db')
@@ -25,13 +46,16 @@ def new_item():
         conn.commit()
         c.close()
 
-        return '<p>The task was inserted into the database,the ID is %s</p>' % new_id
+        redirect("/")
     else:
         return template('new_task.tpl')
 
 @route('/edit/:no', method='GET')
 @validate(no=int)
 def edit_item(no):
+    """
+    Edit a TODO item
+    """
 
     if request.GET.get('save','').strip():
         edit = request.GET.get('task','').strip()
@@ -47,7 +71,7 @@ def edit_item(no):
         c.execute("UPDATE todo SET task = ?, status = ? WHERE id LIKE ?", (edit, status, no))
         conn.commit()
 
-        return '<p>The item number %s was successfully updated</p>' % no
+        redirect("/")
     else:
         conn = sqlite3.connect('todo.db')
         c = conn.cursor()
